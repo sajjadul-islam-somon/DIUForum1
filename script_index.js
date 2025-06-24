@@ -1,7 +1,7 @@
 // DIU Connect - Homepage JavaScript Functions
 
 // Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
@@ -19,23 +19,23 @@ function initializeApp() {
 // Navigation Tab Functionality
 function initializeNavigation() {
     const navLinks = document.querySelectorAll('.nav-link[data-tab]');
-    
+
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
-            
+
             // Add active class to clicked link
             this.classList.add('active');
-            
+
             // Get the tab identifier
             const tab = this.getAttribute('data-tab');
-            
+
             // Handle tab switching with animation
             switchTab(tab);
-            
+
             // Update URL without page reload (for better UX)
             updateURL(tab);
         });
@@ -45,18 +45,18 @@ function initializeNavigation() {
 // Switch between different tabs
 function switchTab(tabName) {
     console.log('Switching to tab:', tabName);
-    
+
     // Add fade out effect
     const mainContent = document.querySelector('.posts-feed');
     if (mainContent) {
         mainContent.style.opacity = '0.5';
-        
+
         // Simulate content loading
         setTimeout(() => {
             mainContent.style.opacity = '1';
-            
+
             // Here you would typically load different content based on the tab
-            switch(tabName) {
+            switch (tabName) {
                 case 'home':
                     loadHomeFeed();
                     break;
@@ -106,15 +106,15 @@ function updateFeedTitle(title) {
 // New Post Modal Functionality
 function initializePostModal() {
     const postModal = document.getElementById('newPostModal');
-    
+
     if (postModal) {
         // Handle modal show event
-        postModal.addEventListener('show.bs.modal', function() {
+        postModal.addEventListener('show.bs.modal', function () {
             console.log('Post modal opened');
             // Clear previous form data
             clearPostForm();
         });
-        
+
         // Handle form submission
         const publishButton = postModal.querySelector('.btn-primary');
         if (publishButton) {
@@ -140,19 +140,19 @@ function clearPostForm() {
 // Handle post submission
 function handlePostSubmission(e) {
     e.preventDefault();
-    
+
     // Get form data
     const title = document.getElementById('postTitle').value.trim();
     const content = document.getElementById('postContent').value.trim();
     const tags = document.getElementById('postTags').value.trim();
     const imageFile = document.getElementById('postImage').files[0];
-    
+
     // Validate form
     if (!title || !content) {
         showAlert('Please fill in both title and content fields.', 'warning');
         return;
     }
-    
+
     // Create post object
     const newPost = {
         id: generatePostId(),
@@ -166,7 +166,7 @@ function handlePostSubmission(e) {
         comments: 0,
         views: 0
     };
-    
+
     // Submit post (in real app, this would be an API call)
     submitPost(newPost);
 }
@@ -179,34 +179,34 @@ function generatePostId() {
 // Get current user info (placeholder)
 function getCurrentUser() {
     return {
-        name: 'John Doe',
+        name: 'Sajjadul Islam Somon',
         department: 'CSE Dept',
-        avatar: 'https://via.placeholder.com/45x45/4A90E2/FFFFFF?text=U'
+        avatar: 'https://freesvg.org/img/abstract-user-flat-4.png'
     };
 }
 
 // Submit post (placeholder function)
 function submitPost(postData) {
     console.log('Submitting post:', postData);
-    
+
     // Show loading state
     showAlert('Publishing your post...', 'info');
-    
+
     // Simulate API call
     setTimeout(() => {
         // Add post to feed
         addPostToFeed(postData);
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('newPostModal'));
         modal.hide();
-        
+
         // Show success message
         showAlert('Post published successfully!', 'success');
-        
+
         // Update statistics
         updatePostStatistics();
-        
+
     }, 1500);
 }
 
@@ -214,15 +214,15 @@ function submitPost(postData) {
 function addPostToFeed(postData) {
     const postsContainer = document.querySelector('.posts-feed');
     if (!postsContainer) return;
-    
+
     const postHTML = createPostHTML(postData);
     postsContainer.insertAdjacentHTML('afterbegin', postHTML);
-    
+
     // Add animation to new post
     const newPost = postsContainer.firstElementChild;
     newPost.style.opacity = '0';
     newPost.style.transform = 'translateY(-20px)';
-    
+
     setTimeout(() => {
         newPost.style.transition = 'all 0.5s ease';
         newPost.style.opacity = '1';
@@ -238,7 +238,7 @@ function createPostHTML(postData) {
             <img src="${URL.createObjectURL(postData.image)}" alt="Post Image" class="img-fluid rounded">
         </div>
     ` : '';
-    
+
     return `
         <div class="post-card" data-post-id="${postData.id}">
             <div class="post-header">
@@ -268,18 +268,16 @@ function createPostHTML(postData) {
             </div>
             <div class="post-stats">
                 <span class="stat"><i class="fas fa-eye"></i> ${postData.views} views</span>
-                <span class="stat"><i class="fas fa-heart"></i> ${postData.likes} likes</span>
-                <span class="stat"><i class="fas fa-comment"></i> ${postData.comments} comments</span>
             </div>
             <div class="post-actions-bottom">
                 <button class="btn btn-ghost btn-sm" onclick="toggleLike('${postData.id}')">
-                    <i class="far fa-heart"></i> Like
+                    <i class="far fa-heart"></i> Like <span class="count ms-1">${postData.likes} likes</span>
                 </button>
                 <button class="btn btn-ghost btn-sm" onclick="showComments('${postData.id}')">
-                    <i class="far fa-comment"></i> Comment
+                    <i class="far fa-comment"></i> Comment <span class="count ms-1">${postData.comments} comments</span>
                 </button>
                 <button class="btn btn-ghost btn-sm" onclick="sharePost('${postData.id}')">
-                    <i class="fas fa-share"></i> Share
+                    <i class="fas fa-share"></i> Share <span class="count ms-1">(${postData.shares})</span>
                 </button>
             </div>
         </div>
@@ -289,16 +287,15 @@ function createPostHTML(postData) {
 // Like Button Functionality
 function initializeLikeButtons() {
     const likeButtons = document.querySelectorAll('.post-actions-bottom .btn:first-child');
-    
+
     likeButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const postCard = this.closest('.post-card');
             const postId = postCard ? postCard.dataset.postId : null;
-            
+
             if (postId) {
                 toggleLike(postId);
             } else {
-                // For existing posts without IDs
                 toggleLikeButton(this);
             }
         });
@@ -309,35 +306,37 @@ function initializeLikeButtons() {
 function toggleLike(postId) {
     const postCard = document.querySelector(`[data-post-id="${postId}"]`);
     if (!postCard) return;
-    
+
     const likeButton = postCard.querySelector('.post-actions-bottom .btn:first-child');
-    const likesStat = postCard.querySelector('.post-stats .stat:nth-child(2)');
-    
     toggleLikeButton(likeButton);
-    updateLikeCount(likesStat);
 }
 
-// Toggle like button appearance
+// Toggle like button appearance and count
 function toggleLikeButton(button) {
     const icon = button.querySelector('i');
-    const text = button.childNodes[button.childNodes.length - 1];
-    
-    if (icon.classList.contains('far')) {
-        // Like the post
+    const countSpan = button.querySelector('.count');
+
+    // Extract the count number
+    const match = countSpan.textContent.match(/\((\d+)\)/);
+    let count = match ? parseInt(match[1]) : 0;
+
+    const isLiked = icon.classList.contains('fas');
+
+    if (!isLiked) {
+        // Like
         icon.classList.remove('far');
         icon.classList.add('fas');
         icon.style.color = '#dc3545';
-        if (text.textContent) text.textContent = ' Liked';
-        
-        // Add heart animation
+        count += 1;
+        countSpan.textContent = `Liked (${count})`;
         animateHeart(icon);
-        
     } else {
-        // Unlike the post
+        // Unlike
         icon.classList.remove('fas');
         icon.classList.add('far');
         icon.style.color = '';
-        if (text.textContent) text.textContent = ' Like';
+        count -= 1;
+        countSpan.textContent = `Like (${count})`;
     }
 }
 
@@ -347,18 +346,6 @@ function animateHeart(icon) {
     setTimeout(() => {
         icon.style.transform = 'scale(1)';
     }, 200);
-}
-
-// Update like count
-function updateLikeCount(likeStat) {
-    if (!likeStat) return;
-    
-    const countMatch = likeStat.textContent.match(/(\d+)/);
-    if (countMatch) {
-        const currentCount = parseInt(countMatch[1]);
-        const newCount = currentCount + (likeStat.textContent.includes('fas fa-heart') ? 1 : -1);
-        likeStat.innerHTML = `<i class="fas fa-heart"></i> ${newCount} likes`;
-    }
 }
 
 // Comment System
@@ -410,7 +397,7 @@ function reportPost(postId) {
 function initializeStatusBar() {
     // Auto-refresh status bar every 30 seconds
     setInterval(updateStatusBar, 30000);
-    
+
     // Initial update
     updateStatusBar();
 }
@@ -419,14 +406,14 @@ function initializeStatusBar() {
 function updateStatusBar() {
     // In a real application, this would fetch data from an API
     const statusItems = document.querySelectorAll('.status-item span');
-    
+
     // Simulate real-time updates
     if (statusItems.length >= 4) {
         const activeUsers = Math.floor(Math.random() * 100) + 1200;
         const newPosts = Math.floor(Math.random() * 50) + 400;
         const newJobs = Math.floor(Math.random() * 10) + 20;
         const studyOps = Math.floor(Math.random() * 5) + 10;
-        
+
         statusItems[0].textContent = `${activeUsers} Active Users`;
         statusItems[1].textContent = `${newPosts} New Posts Today`;
         statusItems[2].textContent = `${newJobs} New Jobs`;
@@ -444,12 +431,12 @@ function initializeSearch() {
 function initializeInfiniteScroll() {
     let loading = false;
     let page = 1;
-    
+
     window.addEventListener('scroll', () => {
         if (loading) return;
-        
+
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-        
+
         if (scrollTop + clientHeight >= scrollHeight - 1000) {
             loading = true;
             loadMorePosts(++page);
@@ -460,10 +447,10 @@ function initializeInfiniteScroll() {
 // Load more posts (infinite scroll)
 function loadMorePosts(page) {
     console.log('Loading more posts, page:', page);
-    
+
     // Show loading indicator
     showLoadingIndicator();
-    
+
     // Simulate API call
     setTimeout(() => {
         const mockPosts = generateMockPosts(5);
@@ -481,17 +468,17 @@ function generateMockPosts(count) {
         { name: 'Karim Rahman', dept: 'BBA Dept', avatar: 'https://via.placeholder.com/45x45/FD7E14/FFFFFF?text=K' },
         { name: 'Dr. Fatima Khan', dept: 'Faculty - CSE', avatar: 'https://via.placeholder.com/45x45/6F42C1/FFFFFF?text=F' }
     ];
-    
+
     const topics = [
         { title: 'Tips for Effective Time Management', content: 'As students, managing time effectively is crucial for academic success...' },
         { title: 'Industry Insights: Latest Tech Trends', content: 'The technology landscape is constantly evolving. Here are some trends to watch...' },
         { title: 'Study Group Formation for Final Exams', content: 'Looking to form study groups for upcoming final examinations...' }
     ];
-    
+
     for (let i = 0; i < count; i++) {
         const author = authors[Math.floor(Math.random() * authors.length)];
         const topic = topics[Math.floor(Math.random() * topics.length)];
-        
+
         posts.push({
             id: generatePostId(),
             title: topic.title,
@@ -504,7 +491,7 @@ function generateMockPosts(count) {
             tags: ['DIU', 'Students', 'Academic']
         });
     }
-    
+
     return posts;
 }
 
@@ -512,7 +499,7 @@ function generateMockPosts(count) {
 function appendPostsToFeed(posts) {
     const postsContainer = document.querySelector('.posts-feed');
     if (!postsContainer) return;
-    
+
     posts.forEach(post => {
         const postHTML = createPostHTML(post);
         postsContainer.insertAdjacentHTML('beforeend', postHTML);
@@ -549,9 +536,9 @@ function showAlert(message, type = 'info') {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(alertDiv);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (alertDiv.parentNode) {
@@ -587,7 +574,7 @@ function updatePostStatistics() {
 }
 
 // Handle browser back/forward buttons
-window.addEventListener('popstate', function(event) {
+window.addEventListener('popstate', function (event) {
     if (event.state && event.state.tab) {
         const tabLink = document.querySelector(`[data-tab="${event.state.tab}"]`);
         if (tabLink) {
@@ -597,10 +584,10 @@ window.addEventListener('popstate', function(event) {
 });
 
 // Initialize based on URL parameters
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
-    
+
     if (tab) {
         const tabLink = document.querySelector(`[data-tab="${tab}"]`);
         if (tabLink) {
