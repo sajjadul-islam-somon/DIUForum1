@@ -284,6 +284,14 @@ function createPostHTML(postData) {
     `;
 }
 
+document.querySelectorAll('.affiliations').forEach(el => {
+    const raw = el.getAttribute('data-affiliations');
+    if (raw) {
+        const parts = raw.split(',');
+        el.textContent = parts.join(' | ');
+    }
+});
+
 // Like Button Functionality
 function initializeLikeButtons() {
     const likeButtons = document.querySelectorAll('.post-actions-bottom .btn:first-child');
@@ -352,45 +360,6 @@ function animateHeart(icon) {
 function initializeCommentSystem() {
     // Initialize comment functionality
     console.log('Comment system initialized');
-}
-
-// Show comments for a post
-function showComments(postId) {
-    console.log('Showing comments for post:', postId);
-    // This would typically open a comments modal or expand comments section
-    showAlert('Comments feature will be implemented soon!', 'info');
-}
-
-// Share post functionality
-function sharePost(postId) {
-    if (navigator.share) {
-        navigator.share({
-            title: 'DIU Connect Post',
-            text: 'Check out this post from DIU Connect',
-            url: window.location.href + '#post-' + postId
-        }).then(() => {
-            console.log('Post shared successfully');
-        }).catch(console.error);
-    } else {
-        // Fallback for browsers that don't support Web Share API
-        copyToClipboard(window.location.href + '#post-' + postId);
-        showAlert('Post link copied to clipboard!', 'success');
-    }
-}
-
-// Save post functionality
-function savePost(postId) {
-    console.log('Saving post:', postId);
-    // This would typically save the post to user's saved posts
-    showAlert('Post saved to your bookmarks!', 'success');
-}
-
-// Report post functionality
-function reportPost(postId) {
-    console.log('Reporting post:', postId);
-    if (confirm('Are you sure you want to report this post?')) {
-        showAlert('Post reported. Our team will review it shortly.', 'info');
-    }
 }
 
 // Status Bar Functionality
